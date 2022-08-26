@@ -1,2 +1,2 @@
-# MLOPS22
+# mlops-22
 MLOPS SESSION2 
