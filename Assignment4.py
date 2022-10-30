@@ -1,6 +1,6 @@
 # Standard scientific Python imports
 import matplotlib.pyplot as plt
-
+import pandas as pd
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics,tree
 from sklearn.model_selection import train_test_split
@@ -47,22 +47,46 @@ n_samples = len(digits.images)
 data = digits.images.reshape((n_samples, -1))
 
 # Create a classifier: a support vector classifier
-clf = svm.SVC(gamma=0.001)
-clf2 = tree.DecisionTreeClassifier()
+#clf = svm.SVC(gamma=0.001)
+#clf2 = tree.DecisionTreeClassifier()
 
 # Split data into 50% train and 50% test subsets
-X_train, X_test, y_train, y_test = train_test_split(
-    data, digits.target, test_size=0.5, shuffle=False
-)
+#X_train, X_test, y_train, y_test = train_test_split(
+#    data, digits.target, test_size=0.5, shuffle=False
+#)
 ##CODE TO SPLIT THE DATA IN 5 SPLITS
 ## USING KFOLD for the same
-kf = KFold(n_splits=5)
-kf.get_n_splits(data)
-KFold(n_splits=5, random_state=None, shuffle=False)
-for train_index, test_index in kf.split(data):
-    print("TRAIN:", train_index, "TEST:", test_index)
-#    X_train, X_test = data[train_index], data[test_index]
-#    y_train, y_test = data[train_index], data[test_index]
+
+df=pd.DataFrame(columns=['run','svm','decisiontree'])
+kfold = KFold(5)
+X=data
+y=digits.target
+idxnum=1
+for train_index, test_index in kfold.split(data):
+
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+    clf = tree.DecisionTreeClassifier()
+    clf.fit(X_train,y_train)
+    pred_test = clf.predict(X_test)
+    AccuracyofDectree=metrics.accuracy_score(pred_test, y_test )
+
+    clf2 = svm.SVC(gamma = 0.001)
+    clf2.fit(X_train,y_train)
+    predic_test= clf2.predict(X_test)
+    AccuracySVM=metrics.accuracy_score(predic_test, y_test)
+    print("accuracy of SVM")
+    print(AccuracySVM)
+    print("accuracy of Decision tree")
+    print(AccuracyofDectree)
+    idxnum+=1
+    df.at[idxnum,'run']=idxnum
+    df.at[idxnum,'svm']=AccuracySVM
+    df.at[idxnum,'decisiontree']=AccuracyofDectree
+
+    print(df.head())
+
+
 
 # Learn the digits on the train subset
 clf.fit(X_train, y_train)
