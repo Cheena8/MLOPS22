@@ -15,9 +15,9 @@ hand-written digits, from 0-9.
 import matplotlib.pyplot as plt
 
 # Import datasets, classifiers and performance metrics
-from sklearn import datasets, svm, metrics
+from sklearn import datasets, svm, metrics,tree
 from sklearn.model_selection import train_test_split
-
+from sklearn.model_selection import KFold
 ###############################################################################
 # Digits dataset
 # --------------
@@ -61,17 +61,30 @@ data = digits.images.reshape((n_samples, -1))
 
 # Create a classifier: a support vector classifier
 clf = svm.SVC(gamma=0.001)
+clf2 = tree.DecisionTreeClassifier()
 
 # Split data into 50% train and 50% test subsets
 X_train, X_test, y_train, y_test = train_test_split(
     data, digits.target, test_size=0.5, shuffle=False
 )
+##CODE TO SPLIT THE DATA IN 5 SPLITS
+## USING KFOLD for the same
+kf = KFold(n_splits=5)
+kf.get_n_splits(data)
+KFold(n_splits=5, random_state=None, shuffle=False)
+for train_index, test_index in kf.split(data):
+    print("TRAIN:", train_index, "TEST:", test_index)
+#    X_train, X_test = data[train_index], data[test_index]
+#    y_train, y_test = data[train_index], data[test_index]
 
 # Learn the digits on the train subset
 clf.fit(X_train, y_train)
+## FIRST ONE SVC AND SECOND ONE DECISION TREE
+clf2  = clf2.fit(X_train, y_train)
 
 # Predict the value of the digit on the test subset
 predicted = clf.predict(X_test)
+predicted2 = clf2.predict(X_test)
 
 ###############################################################################
 # Below we visualize the first 4 test samples and show their predicted
@@ -83,6 +96,13 @@ for ax, image, prediction in zip(axes, X_test, predicted):
     image = image.reshape(8, 8)
     ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
     ax.set_title(f"Prediction: {prediction}")
+#_, axes = plt.subplots(nrows =1 , ncols =4, figsize(10,3))
+#for ax, image, prediction in zip(axes, X_test, predicted2):
+#    ax.set_axis_off()
+#    image = image.reshape(8,8)
+#    ax.imshow(image, cmap=plt.cm.gray_r, interpolation ="nearest")
+#    ax.set_title(f"(Prediction : {prediction of decision tree}")
+
 
 ###############################################################################
 # :func:`~sklearn.metrics.classification_report` builds a text report showing
@@ -92,6 +112,7 @@ print(
     f"Classification report for classifier {clf}:\n"
     f"{metrics.classification_report(y_test, predicted)}\n"
 )
+print(f"Classification report for classifier{clf2}:\n" f"{metrics.classification_report(y_test, predicted2)}\n")
 
 ###############################################################################
 # We can also plot a :ref:`confusion matrix <confusion_matrix>` of the
